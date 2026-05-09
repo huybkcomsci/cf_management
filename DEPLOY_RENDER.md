@@ -37,6 +37,17 @@ git push origin main
 
 ## Step 2: Create Render Service
 
+### 2.0 Deploy from Blueprint
+
+Render can read the `render.yaml` file in the repo root and create the service for you.
+
+1. Go to Render Dashboard
+2. Click "New +" → "Blueprint"
+3. Connect your GitHub repository
+4. Select the repo and branch
+5. Review the generated web service
+6. Add the secret `CONNECTION_STRING` in the environment settings
+
 ### 2.1 Login to Render Dashboard
 
 Go to https://render.com/dashboard
