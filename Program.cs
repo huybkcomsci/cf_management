@@ -63,8 +63,9 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 // Seed roles (Admin/User) at startup
-using (var scope = app.Services.CreateScope())
+try
 {
+    using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
@@ -74,7 +75,9 @@ using (var scope = app.Services.CreateScope())
     {
         var exists = await roleManager.RoleExistsAsync(role);
         if (!exists)
+        {
             await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
+        }
     }
 
     const string adminEmail = "admin@cafemanagement.local";
@@ -99,6 +102,10 @@ using (var scope = app.Services.CreateScope())
     }
 
     await DbSeedData.EnsureSeedDataAsync(services);
+}
+catch (Exception ex)
+{
+    app.Logger.LogWarning(ex, "Database initialization was skipped because the database is not reachable during startup.");
 }
 
 // Configure the HTTP request pipeline.
