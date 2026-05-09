@@ -3,12 +3,14 @@
 ## Error: "SocketException: Network is unreachable"
 
 ### Symptoms
+
 ```
 SocketException: Network is unreachable
 NpgsqlException: Failed to connect to [IPv6_ADDRESS]:5432
 ```
 
 This typically occurs when:
+
 1. IPv6 connectivity issue between client and Supabase
 2. Connection string is incorrect
 3. Firewall blocking PostgreSQL port 5432
@@ -17,6 +19,7 @@ This typically occurs when:
 ### Solution
 
 #### 1. Verify Connection String
+
 Check that `appsettings.json` has correct Supabase credentials:
 
 ```json
@@ -30,6 +33,7 @@ Check that `appsettings.json` has correct Supabase credentials:
 **Find your credentials at:** https://supabase.com/dashboard → Select Project → Settings → Database → Connection String
 
 #### 2. Set Environment Variable
+
 For Render deployment, ensure CONNECTION_STRING is set:
 
 ```bash
@@ -40,6 +44,7 @@ Value: Host=db.YOUR-PROJECT.supabase.co;Port=5432;Database=postgres;Username=pos
 ```
 
 #### 3. Test Connectivity Locally
+
 Test with `psql` (PostgreSQL client):
 
 ```bash
@@ -54,13 +59,16 @@ postgres=> SELECT 1;
 ```
 
 #### 4. Update Code
+
 The app now includes:
+
 - ✅ Retry logic (3 attempts, 5 second delays)
 - ✅ Connection pooling (min 1, max 20)
 - ✅ SSL Mode=Require
 - ✅ Connection timeout (30 seconds)
 
 #### 5. Restart Application
+
 After changes to connection string:
 
 ```bash
@@ -73,17 +81,18 @@ dotnet run 2>&1 | grep -i "connection\|socket\|network"
 
 ## Common Causes & Fixes
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| IPv6 connectivity error | Client can't reach Supabase via IPv6 | Supabase resolves to IPv6 by default; our connection string now handles this with `Pooling=true` and retry logic |
-| "Server unavailable" after minutes | Idle connection timeout | Connection Idle Lifetime=300 auto-recycles idle connections |
-| "Too many connections" | Connection pool exhausted | Max Pool Size=20; check if app is leaking connections |
-| SSL/TLS error | Outdated or missing SSL cert | SSL Mode=Require;Trust Server Certificate=true |
-| Login fails but app starts | Database exists but no seed data | Run SQL script: `scripts/supabase_seed.sql` in Supabase Editor |
+| Issue                              | Cause                                | Solution                                                                                                         |
+| ---------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| IPv6 connectivity error            | Client can't reach Supabase via IPv6 | Supabase resolves to IPv6 by default; our connection string now handles this with `Pooling=true` and retry logic |
+| "Server unavailable" after minutes | Idle connection timeout              | Connection Idle Lifetime=300 auto-recycles idle connections                                                      |
+| "Too many connections"             | Connection pool exhausted            | Max Pool Size=20; check if app is leaking connections                                                            |
+| SSL/TLS error                      | Outdated or missing SSL cert         | SSL Mode=Require;Trust Server Certificate=true                                                                   |
+| Login fails but app starts         | Database exists but no seed data     | Run SQL script: `scripts/supabase_seed.sql` in Supabase Editor                                                   |
 
 ## Debug Steps
 
 ### Check Connection String Format
+
 ```csharp
 // In Program.cs or Controller
 var connStr = configuration.GetConnectionString("DefaultConnection");
@@ -91,6 +100,7 @@ Console.WriteLine($"Connection to: {connStr.Split(';')[0]}"); // Shows Host only
 ```
 
 ### Check Database Alive
+
 ```sql
 -- In Supabase SQL Editor
 SELECT now();
@@ -98,12 +108,14 @@ SELECT table_name FROM information_schema.tables LIMIT 5;
 ```
 
 ### Check If Migration Applied
+
 ```sql
 -- In Supabase SQL Editor
 SELECT * FROM "AspNetRoles" LIMIT 1;
 ```
 
 ### Monitor Render Logs
+
 ```bash
 # On Render dashboard
 Logs → View Logs → Search for "connection" or "socket"
@@ -112,10 +124,12 @@ Logs → View Logs → Search for "connection" or "socket"
 ## IPv6 vs IPv4 Notes
 
 Supabase typically resolves to:
+
 - **Primary**: IPv6 address (2406:da14:...)
 - **Secondary**: IPv4 address (via DNS fallback)
 
 The connection string now handles both via:
+
 - `Pooling=true` - Manages connection reuse
 - `Retry logic` - Handles transient failures
 - `SSL Mode=Require` - Forces secure connections

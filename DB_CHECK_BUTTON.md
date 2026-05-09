@@ -7,15 +7,17 @@ A simple, user-friendly button on the home page that checks database connectivit
 ## How It Works
 
 ### Frontend (Client-Side)
+
 - **Location**: Home page `/`
 - **Button**: "Check Database Connection"
 - **Action**: Sends POST request to backend
-- **Display**: 
+- **Display**:
   - Shows loading spinner while checking
   - Displays success (green) or error (red) status
   - Shows detailed error messages if connection fails
 
 ### Backend (Server-Side)
+
 - **Endpoint**: `POST /Home/CheckDatabaseConnection`
 - **Logic**:
   1. Calls `_context.Database.CanConnectAsync()` to verify connection
@@ -26,6 +28,7 @@ A simple, user-friendly button on the home page that checks database connectivit
 ## Usage
 
 ### For Users
+
 1. Go to application home page
 2. Look for "Check Database Connection" button
 3. Click the button
@@ -37,6 +40,7 @@ A simple, user-friendly button on the home page that checks database connectivit
 ### Example Results
 
 **Success Response:**
+
 ```
 ✓ Database connection successful
 Connected at: 2026-05-09 14:30:45
@@ -44,6 +48,7 @@ Database time: 2026-05-09 14:30:45
 ```
 
 **Error Response (Network Issue):**
+
 ```
 ✗ Database connection failed
 Network is unreachable
@@ -51,6 +56,7 @@ Error type: SocketException
 ```
 
 **Error Response (Invalid Credentials):**
+
 ```
 ✗ Database connection failed
 FATAL: password authentication failed for user "postgres"
@@ -60,24 +66,29 @@ Error type: NpgsqlException
 ## Troubleshooting with This Feature
 
 ### Scenario 1: "Network is unreachable"
+
 - **Cause**: IPv6 connectivity issue (Supabase → local/Render)
 - **Action**: Check [DATABASE_CONNECTIVITY.md](DATABASE_CONNECTIVITY.md)
 
 ### Scenario 2: "password authentication failed"
+
 - **Cause**: Wrong password or username in connection string
 - **Action**: Verify CONNECTION_STRING environment variable
 
 ### Scenario 3: "timeout"
+
 - **Cause**: Database is slow or unreachable
 - **Action**: Check Supabase dashboard, verify network
 
 ### Scenario 4: Shows success but login fails
+
 - **Cause**: Database connected but no seed data or Identity tables missing
 - **Action**: Run SQL script: `scripts/supabase_seed.sql` in Supabase
 
 ## Technical Details
 
 ### Controller Code
+
 ```csharp
 [HttpPost]
 public async Task<IActionResult> CheckDatabaseConnection()
@@ -85,12 +96,12 @@ public async Task<IActionResult> CheckDatabaseConnection()
     try
     {
         var canConnect = await _context.Database.CanConnectAsync();
-        
+
         if (canConnect)
         {
-            return Json(new 
-            { 
-                success = true, 
+            return Json(new
+            {
+                success = true,
                 message = "✓ Database connection successful",
                 details = $"Connected at: {DateTime.Now:yyyy-MM-dd HH:mm:ss}",
                 databaseTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
@@ -98,9 +109,9 @@ public async Task<IActionResult> CheckDatabaseConnection()
         }
         else
         {
-            return Json(new 
-            { 
-                success = false, 
+            return Json(new
+            {
+                success = false,
                 message = "✗ Cannot connect to database",
                 details = "CanConnectAsync returned false"
             });
@@ -109,9 +120,9 @@ public async Task<IActionResult> CheckDatabaseConnection()
     catch (Exception ex)
     {
         _logger.LogError($"Database connection check failed: {ex.Message}");
-        return Json(new 
-        { 
-            success = false, 
+        return Json(new
+        {
+            success = false,
             message = "✗ Database connection failed",
             details = ex.Message,
             type = ex.GetType().Name
@@ -121,6 +132,7 @@ public async Task<IActionResult> CheckDatabaseConnection()
 ```
 
 ### View Code
+
 - **File**: `Views/Home/Index.cshtml`
 - **Features**:
   - Bootstrap button styling
@@ -150,6 +162,7 @@ public async Task<IActionResult> CheckDatabaseConnection()
 ## Future Enhancements
 
 Possible improvements:
+
 - [ ] Add query response time measurement
 - [ ] Check specific tables (AspNetUsers, Sanpham, etc.)
 - [ ] Add authentication requirement (admin only)
