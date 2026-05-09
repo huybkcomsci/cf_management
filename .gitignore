@@ -1,0 +1,35 @@
+# Build results
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+
+# Development
+.vscode/
+.vs/
+*.user
+*.suo
+*.sln.docstates
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Dependencies
+node_modules/
+package-lock.json
