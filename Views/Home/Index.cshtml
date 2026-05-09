@@ -6,3 +6,102 @@
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+
+<hr />
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h3>Database Connection Status</h3>
+            <button id="checkDbBtn" class="btn btn-primary btn-lg w-100" onclick="checkDatabaseConnection()">
+                <i class="fas fa-database"></i> Check Database Connection
+            </button>
+            
+            <div id="statusDiv" class="mt-4" style="display: none;">
+                <div class="alert" id="alertDiv" role="alert">
+                    <h5 id="messageH5"></h5>
+                    <p id="detailsP" class="mb-0"></p>
+                    <small id="timeSmall" class="text-muted"></small>
+                </div>
+            </div>
+            
+            <div id="loadingDiv" class="mt-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Checking database connection...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .alert.success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    
+    .alert.error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+</style>
+
+<script>
+function checkDatabaseConnection() {
+    const checkBtn = document.getElementById('checkDbBtn');
+    const statusDiv = document.getElementById('statusDiv');
+    const loadingDiv = document.getElementById('loadingDiv');
+    const alertDiv = document.getElementById('alertDiv');
+    const messageH5 = document.getElementById('messageH5');
+    const detailsP = document.getElementById('detailsP');
+    const timeSmall = document.getElementById('timeSmall');
+    
+    // Show loading state
+    checkBtn.disabled = true;
+    loadingDiv.style.display = 'block';
+    statusDiv.style.display = 'none';
+    
+    // Make request
+    fetch('/Home/CheckDatabaseConnection', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingDiv.style.display = 'none';
+        statusDiv.style.display = 'block';
+        checkBtn.disabled = false;
+        
+        // Update alert class
+        alertDiv.classList.remove('success', 'error');
+        alertDiv.classList.add(data.success ? 'success' : 'error');
+        
+        // Update content
+        messageH5.innerHTML = data.message;
+        detailsP.innerHTML = data.details || '';
+        
+        if (data.databaseTime) {
+            timeSmall.innerHTML = `<br/>Database time: ${data.databaseTime}`;
+        } else if (data.type) {
+            timeSmall.innerHTML = `<br/>Error type: ${data.type}`;
+        }
+    })
+    .catch(error => {
+        loadingDiv.style.display = 'none';
+        statusDiv.style.display = 'block';
+        checkBtn.disabled = false;
+        
+        alertDiv.classList.remove('success', 'error');
+        alertDiv.classList.add('error');
+        
+        messageH5.innerHTML = '✗ Request failed';
+        detailsP.innerHTML = error.message;
+    });
+}
+</script>
