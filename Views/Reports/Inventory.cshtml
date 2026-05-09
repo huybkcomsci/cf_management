@@ -1,0 +1,51 @@
+@model CafeManagement.Models.ViewModels.InventoryReportViewModel
+@{
+    ViewData["Title"] = "Bao cao ton kho";
+    Layout = "_AdminLayout";
+}
+
+<h3 class="mb-3">Bao cao ton kho</h3>
+
+<form class="row g-2 mb-3" method="get">
+    <div class="col-md-3"><input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control" /></div>
+    <div class="col-md-3"><input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control" /></div>
+    <div class="col-md-2"><button class="btn btn-primary w-100">Loc</button></div>
+    <div class="col-md-2"><a class="btn btn-success w-100" asp-action="ExportInventoryExcel" asp-route-fromDate="@ViewBag.FromDate" asp-route-toDate="@ViewBag.ToDate">Excel</a></div>
+    <div class="col-md-2"><a class="btn btn-danger w-100" asp-action="ExportInventoryPdf" asp-route-fromDate="@ViewBag.FromDate" asp-route-toDate="@ViewBag.ToDate">PDF</a></div>
+</form>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><small>Tong gia tri ton</small><h5>@Model.TongGiaTriTonKho.ToString("N0")</h5></div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><small>Mat hang sap het</small><h5 class="text-danger">@Model.SoMatHangSapHet</h5></div></div></div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Mat hang</th><th>DVT</th><th>Nhap</th><th>Xuat</th><th>Ton cuoi</th><th>Gia tri ton</th><th>Canh bao</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model.Rows)
+            {
+                <tr>
+                    <td>@r.ProductName</td>
+                    <td>@r.Unit</td>
+                    <td>@r.Nhap</td>
+                    <td>@r.Xuat</td>
+                    <td>@r.TonCuoi</td>
+                    <td>@r.GiaTriTonKho.ToString("N0")</td>
+                    <td>
+                        @if (r.SapHetHang)
+                        {
+                            <span class="badge bg-danger">Sap het</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">OK</span>
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

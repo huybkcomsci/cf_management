@@ -1,0 +1,40 @@
+@model IReadOnlyList<CafeManagement.Models.ViewModels.PayrollResultViewModel>
+@{
+    ViewData["Title"] = "Bang luong";
+    Layout = "_AdminLayout";
+}
+
+<h3 class="mb-3">Bang luong theo thang</h3>
+
+<form class="row g-2 mb-3" method="get">
+    <div class="col-md-2"><input type="number" name="year" value="@ViewBag.Year" class="form-control" placeholder="Nam" /></div>
+    <div class="col-md-2"><input type="number" name="month" value="@ViewBag.Month" class="form-control" placeholder="Thang" min="1" max="12" /></div>
+    <div class="col-md-2"><button class="btn btn-primary w-100">Tinh</button></div>
+</form>
+
+<form asp-action="SavePayroll" method="post" class="mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="year" value="@ViewBag.Year" />
+    <input type="hidden" name="month" value="@ViewBag.Month" />
+    <button class="btn btn-success">Luu bang luong</button>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Nhan vien</th><th>So gio</th><th>Luong co ban</th><th>Overtime</th><th>Tong luong</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.TenNhanvien</td>
+                    <td>@r.SoGio</td>
+                    <td>@r.LuongCoBan.ToString("N0")</td>
+                    <td>@r.LuongOvertime.ToString("N0")</td>
+                    <td><strong>@r.TongLuong.ToString("N0")</strong></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

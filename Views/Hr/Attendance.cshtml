@@ -1,0 +1,34 @@
+@model IReadOnlyList<CafeManagement.Models.ViewModels.AttendanceDashboardRowViewModel>
+@{
+    ViewData["Title"] = "Cham cong";
+    Layout = "_AdminLayout";
+}
+
+<h3 class="mb-3">Cham cong</h3>
+
+<form class="row g-2 mb-3" method="get">
+    <div class="col-md-3"><input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control" /></div>
+    <div class="col-md-3"><input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control" /></div>
+    <div class="col-md-2"><button class="btn btn-primary w-100">Loc</button></div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped mb-0">
+            <thead><tr><th>Nhan vien</th><th>Ngay</th><th>Gio vao</th><th>Gio ra</th><th>Tong gio</th><th>Overtime</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.TenNhanvien</td>
+                    <td>@r.Ngay.ToString("dd/MM/yyyy")</td>
+                    <td>@(r.GioVao?.ToString(@"hh\:mm") ?? "-")</td>
+                    <td>@(r.GioRa?.ToString(@"hh\:mm") ?? "-")</td>
+                    <td>@r.TongGio.ToString("0.##")</td>
+                    <td>@r.OvertimeGio.ToString("0.##")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

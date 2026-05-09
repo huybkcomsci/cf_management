@@ -1,0 +1,51 @@
+@model CafeManagement.DTOs.SanphamDetailsDto
+@{
+    ViewData["Title"] = "Chi tiet san pham";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Chi tiet san pham</h3>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole("Admin") || User.IsInRole("Kế toán"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Sua</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">Quay lai</a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Ten san pham</dt>
+            <dd class="col-sm-9">@Model.TenSP</dd>
+
+            <dt class="col-sm-3">Nhom</dt>
+            <dd class="col-sm-9">@Model.TenNhom</dd>
+
+            <dt class="col-sm-3">Mo ta</dt>
+            <dd class="col-sm-9">@Model.MoTa</dd>
+
+            <dt class="col-sm-3">Gia ban</dt>
+            <dd class="col-sm-9">@Model.GiaBan.ToString("N0")</dd>
+
+            <dt class="col-sm-3">Gia nhap</dt>
+            <dd class="col-sm-9">@Model.GiaNhap.ToString("N0")</dd>
+
+            <dt class="col-sm-3">Ton kho</dt>
+            <dd class="col-sm-9">@Model.SoLuongTon</dd>
+
+            <dt class="col-sm-3">Ton toi thieu</dt>
+            <dd class="col-sm-9">@Model.SLTonMin</dd>
+
+            <dt class="col-sm-3">Don vi tinh</dt>
+            <dd class="col-sm-9">@Model.DonViTinh</dd>
+
+            <dt class="col-sm-3">Trang thai</dt>
+            <dd class="col-sm-9">@(Model.IsActive ? "Hoat dong" : "Ngung")</dd>
+
+            <dt class="col-sm-3">Ngay tao</dt>
+            <dd class="col-sm-9">@Model.NgayTao.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+        </dl>
+    </div>
+</div>

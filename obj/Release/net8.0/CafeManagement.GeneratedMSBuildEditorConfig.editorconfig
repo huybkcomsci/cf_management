@@ -1,0 +1,119 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = CafeManagement
+build_property.RootNamespace = CafeManagement
+build_property.ProjectDir = /Users/hus/CODING/DNHAN/CafeManagement/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/hus/CODING/DNHAN/CafeManagement
+build_property._RazorSourceGeneratorDebug = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9BY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Dinhluong/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGluaGx1b25nL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Dinhluong/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGluaGx1b25nL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Dinhluong/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGluaGx1b25nL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Hr/Attendance.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSHIvQXR0ZW5kYW5jZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Hr/Payroll.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSHIvUGF5cm9sbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Reports/Inventory.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0cy9JbnZlbnRvcnkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Reports/Revenue.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0cy9SZXZlbnVlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sales/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FsZXMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sales/Print.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FsZXMvUHJpbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sanpham/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FucGhhbS9DcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sanpham/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FucGhhbS9EZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sanpham/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FucGhhbS9EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sanpham/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FucGhhbS9FZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Sanpham/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2FucGhhbS9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Shared/_AdminLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19BZG1pbkxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/hus/CODING/DNHAN/CafeManagement/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-jc433jvut8

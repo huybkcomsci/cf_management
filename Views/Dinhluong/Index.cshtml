@@ -1,0 +1,132 @@
+@model List<CafeManagement.Models.ViewModels.DinhluongListItemViewModel>
+
+@{
+    ViewData["Title"] = "Quản lý Định lượng Công thức";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="page-title">
+                <i class="fas fa-recipe"></i> Quản lý Công thức
+            </h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Thêm Công thức
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model == null || Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Chưa có công thức nào. 
+            <a asp-action="Create">Thêm công thức mới</a>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 25%">Sản phẩm</th>
+                            <th style="width: 25%">Thành phần</th>
+                            <th style="width: 15%">Số lượng</th>
+                            <th style="width: 15%">Đơn vị</th>
+                            <th style="width: 20%">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@item.SanphamName</strong>
+                                </td>
+                                <td>@item.ThanhphanName</td>
+                                <td class="text-center">
+                                    <span class="badge bg-info">@item.SoLuong</span>
+                                </td>
+                                <td class="text-center">@item.DonVi</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger" 
+                                            onclick="deleteRecipe('@item.Id', '@item.SanphamName - @item.ThanhphanName')"
+                                            title="Xóa">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .page-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.08);
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.6rem;
+    }
+</style>
+
+<script>
+function deleteRecipe(id, name) {
+    if (confirm(`Bạn chắc chắn muốn xóa công thức "${name}"?`)) {
+        fetch('/Dinhluong/Delete?id=' + id, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Lỗi xóa công thức');
+        });
+    }
+}
+</script>

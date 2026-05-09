@@ -1,0 +1,256 @@
+@model CafeManagement.Models.ViewModels.SalesPageViewModel
+@{
+    ViewData["Title"] = "Ban hang";
+}
+
+<div class="row g-3 sales-page">
+    <div class="col-12 col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex gap-2 align-items-center">
+                <h5 class="mb-0 me-auto">Menu</h5>
+                <input id="menuSearch" class="form-control form-control-sm" style="max-width: 260px;" placeholder="Tim mon..." />
+                <button id="btnReloadMenu" class="btn btn-sm btn-outline-secondary">Tai lai</button>
+            </div>
+            <div class="card-body" style="max-height: 70vh; overflow:auto;">
+                <div id="menuGrid" class="row g-2">
+                    @foreach (var p in Model.MenuItems)
+                    {
+                        <div class="col-6 col-md-4">
+                            <button type="button"
+                                    class="btn btn-outline-dark text-start w-100 h-100 menu-item"
+                                    data-id="@p.Id"
+                                    data-name="@p.TenSP"
+                                    data-price="@p.GiaBan"
+                                    data-stock="@p.SoLuongTon">
+                                <div class="fw-semibold">@p.TenSP</div>
+                                <div class="small text-muted">@p.TenNhom</div>
+                                <div class="small">@p.GiaBan.ToString("N0") VND</div>
+                                <div class="small text-muted">Ton: @p.SoLuongTon</div>
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Hoa don tam</h5>
+            </div>
+            <div class="card-body d-flex flex-column">
+                @Html.AntiForgeryToken()
+                <div class="table-responsive flex-grow-1" style="max-height:50vh; overflow:auto;">
+                    <table class="table table-sm align-middle" id="cartTable">
+                        <thead>
+                            <tr>
+                                <th>Mon</th>
+                                <th style="width:90px;">SL</th>
+                                <th class="text-end">Gia</th>
+                                <th class="text-end">Tien</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="mt-2">
+                    <div class="d-flex justify-content-between">
+                        <span>Tam tinh</span>
+                        <strong id="subtotalText">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <label for="discountInput" class="mb-0">Giam gia</label>
+                        <input id="discountInput" type="number" min="0" class="form-control form-control-sm text-end" style="max-width:140px;" value="0" />
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 fs-5">
+                        <span>Tong cong</span>
+                        <strong id="totalText">0</strong>
+                    </div>
+                </div>
+
+                <div class="mt-3 d-grid gap-2">
+                    <button id="btnCheckout" class="btn btn-success btn-lg">Thanh toan</button>
+                    <button id="btnClear" class="btn btn-outline-secondary">Lam moi gio hang</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const cart = new Map();
+    const menuGrid = document.getElementById('menuGrid');
+    const cartBody = document.querySelector('#cartTable tbody');
+    const subtotalText = document.getElementById('subtotalText');
+    const totalText = document.getElementById('totalText');
+    const discountInput = document.getElementById('discountInput');
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    function formatVnd(v) {
+        return Number(v).toLocaleString('vi-VN') + ' VND';
+    }
+
+    function calcSubtotal() {
+        let total = 0;
+        for (const item of cart.values()) {
+            total += item.price * item.qty;
+        }
+        return total;
+    }
+
+    function renderCart() {
+        cartBody.innerHTML = '';
+        for (const [id, item] of cart.entries()) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.name}<div class="small text-muted">Ton: ${item.stock}</div></td>
+                <td>
+                    <input type="number" class="form-control form-control-sm qty-input" data-id="${id}" min="1" max="${item.stock}" value="${item.qty}" />
+                </td>
+                <td class="text-end">${formatVnd(item.price)}</td>
+                <td class="text-end">${formatVnd(item.price * item.qty)}</td>
+                <td><button class="btn btn-sm btn-outline-danger remove-btn" data-id="${id}">x</button></td>
+            `;
+            cartBody.appendChild(tr);
+        }
+
+        const subtotal = calcSubtotal();
+        const discount = Math.max(0, Number(discountInput.value || 0));
+        const total = Math.max(0, subtotal - discount);
+        subtotalText.textContent = formatVnd(subtotal);
+        totalText.textContent = formatVnd(total);
+    }
+
+    function addItem({id, name, price, stock}) {
+        if (stock <= 0) {
+            alert('San pham da het hang');
+            return;
+        }
+
+        if (cart.has(id)) {
+            const item = cart.get(id);
+            if (item.qty < item.stock) item.qty += 1;
+            cart.set(id, item);
+        } else {
+            cart.set(id, { id, name, price: Number(price), stock: Number(stock), qty: 1 });
+        }
+        renderCart();
+    }
+
+    menuGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.menu-item');
+        if (!btn) return;
+        addItem({
+            id: btn.dataset.id,
+            name: btn.dataset.name,
+            price: btn.dataset.price,
+            stock: btn.dataset.stock
+        });
+    });
+
+    cartBody.addEventListener('input', (e) => {
+        if (!e.target.classList.contains('qty-input')) return;
+        const id = e.target.dataset.id;
+        const item = cart.get(id);
+        if (!item) return;
+        let qty = Number(e.target.value || 1);
+        if (qty < 1) qty = 1;
+        if (qty > item.stock) qty = item.stock;
+        item.qty = qty;
+        cart.set(id, item);
+        renderCart();
+    });
+
+    cartBody.addEventListener('click', (e) => {
+        const btn = e.target.closest('.remove-btn');
+        if (!btn) return;
+        cart.delete(btn.dataset.id);
+        renderCart();
+    });
+
+    discountInput.addEventListener('input', renderCart);
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+        cart.clear();
+        discountInput.value = 0;
+        renderCart();
+    });
+
+    document.getElementById('btnReloadMenu').addEventListener('click', async () => {
+        const q = document.getElementById('menuSearch').value || '';
+        const res = await fetch(`/Sales/GetMenu?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        menuGrid.innerHTML = data.map(p => `
+            <div class="col-6 col-md-4">
+                <button type="button"
+                        class="btn btn-outline-dark text-start w-100 h-100 menu-item"
+                        data-id="${p.id}"
+                        data-name="${p.tenSP}"
+                        data-price="${p.giaBan}"
+                        data-stock="${p.soLuongTon}">
+                    <div class="fw-semibold">${p.tenSP}</div>
+                    <div class="small text-muted">${p.tenNhom ?? ''}</div>
+                    <div class="small">${formatVnd(p.giaBan)}</div>
+                    <div class="small text-muted">Ton: ${p.soLuongTon}</div>
+                </button>
+            </div>
+        `).join('');
+    });
+
+    document.getElementById('btnCheckout').addEventListener('click', async () => {
+        if (cart.size === 0) {
+            alert('Vui long chon it nhat 1 mon');
+            return;
+        }
+
+        const payload = {
+            giamGia: Math.max(0, Number(discountInput.value || 0)),
+            items: Array.from(cart.values()).map(x => ({ sanphamId: x.id, soLuong: x.qty }))
+        };
+
+        const res = await fetch('/Sales/Checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': token
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            alert(err.message || 'Thanh toan that bai');
+            return;
+        }
+
+        const result = await res.json();
+        alert(`Thanh toan thanh cong - ${result.maHD}`);
+        window.open(`/Sales/Print/${result.hoadonId}`, '_blank');
+        cart.clear();
+        discountInput.value = 0;
+        renderCart();
+        document.getElementById('btnReloadMenu').click();
+    });
+
+    renderCart();
+})();
+</script>
+<style>
+.sales-page .card {
+    border-radius: 12px;
+}
+@@media (max-width: 1024px) {
+    .sales-page .card-body {
+        padding: 0.75rem;
+    }
+    .sales-page .btn {
+        min-height: 44px;
+    }
+}
+</style>
+}

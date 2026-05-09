@@ -1,0 +1,128 @@
+@model CafeManagement.DTOs.SanphamIndexVm
+@{
+    ViewData["Title"] = "Quan ly san pham";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Quan ly san pham</h3>
+    @if (User.IsInRole("Admin") || User.IsInRole("Kế toán"))
+    {
+        <a asp-action="Create" class="btn btn-primary">Them moi</a>
+    }
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input name="q" value="@Model.Search" class="form-control" placeholder="Tim theo ten/ mo ta" />
+    </div>
+    <div class="col-md-2">
+        <select name="pageSize" class="form-select">
+            @foreach (var size in new[] { 10, 20, 50 })
+            {
+                <option value="@size" selected="@(Model.PageSize == size)">@size / trang</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-secondary w-100" type="submit">Tim</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Ten SP</th>
+                <th>Nhom</th>
+                <th>DVT</th>
+                <th class="text-end">Gia ban</th>
+                <th class="text-end">Ton kho</th>
+                <th>Trang thai</th>
+                <th style="width:220px;">Thao tac</th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (!Model.Items.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">Khong co du lieu</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.TenSP</td>
+                    <td>@item.TenNhom</td>
+                    <td>@item.DonViTinh</td>
+                    <td class="text-end">@item.GiaBan.ToString("N0")</td>
+                    <td class="text-end">@item.SoLuongTon</td>
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <span class="badge bg-success">Hoat dong</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Ngung</span>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Chi tiet</a>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Kế toán"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">Sua</a>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <form asp-action="DeleteConfirmed" asp-route-id="@item.Id" method="post" class="d-inline js-delete-form">
+                                @Html.AntiForgeryToken()
+                                <button type="button" class="btn btn-sm btn-outline-danger js-delete-btn" data-name="@item.TenSP">Xoa</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : string.Empty)">
+                    <a class="page-link" asp-action="Index" asp-route-q="@Model.Search" asp-route-page="@i" asp-route-pageSize="@Model.PageSize">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.js-delete-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const form = this.closest('.js-delete-form');
+                const name = this.dataset.name || 'san pham';
+                Swal.fire({
+                    title: 'Xac nhan xoa?',
+                    text: `Ban chac chan muon xoa ${name}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Xoa',
+                    cancelButtonText: 'Huy'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

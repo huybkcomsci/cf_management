@@ -1,0 +1,50 @@
+@model CafeManagement.Models.ViewModels.RevenueSummaryViewModel
+@{
+    ViewData["Title"] = "Bao cao doanh thu";
+    Layout = "_AdminLayout";
+}
+
+<h3 class="mb-3">Bao cao doanh thu</h3>
+
+<form class="row g-2 mb-3" method="get">
+    <div class="col-md-3"><input type="date" name="fromDate" value="@ViewBag.FromDate" class="form-control" /></div>
+    <div class="col-md-3"><input type="date" name="toDate" value="@ViewBag.ToDate" class="form-control" /></div>
+    <div class="col-md-2"><button class="btn btn-primary w-100">Loc</button></div>
+</form>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><small>Tong doanh thu</small><h4>@Model.TotalRevenue.ToString("N0")</h4></div></div></div>
+    <div class="col-md-4"><div class="card shadow-sm"><div class="card-body"><small>So hoa don</small><h4>@Model.InvoiceCount</h4></div></div></div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body"><canvas id="revenueDayChart" height="100"></canvas></div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header">Top mon ban chay</div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Mon</th><th>So luong</th><th>Doanh thu</th></tr></thead>
+            <tbody>
+            @foreach (var p in Model.TopProducts)
+            {
+                <tr><td>@p.ProductName</td><td>@p.Quantity</td><td>@p.Revenue.ToString("N0")</td></tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DailySeries.Select(x => x.Label)));
+const values = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DailySeries.Select(x => x.Value)));
+new Chart(document.getElementById('revenueDayChart'), {
+  type: 'line',
+  data: { labels, datasets: [{ label: 'Doanh thu theo ngay', data: values, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.2)', fill: true, tension: .35 }] },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+</script>
+}

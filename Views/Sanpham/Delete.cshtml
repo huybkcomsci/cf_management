@@ -1,0 +1,25 @@
+@model CafeManagement.DTOs.SanphamDetailsDto
+@{
+    ViewData["Title"] = "Xoa san pham";
+}
+
+<h3 class="text-danger mb-3">Xac nhan xoa san pham</h3>
+
+<div class="alert alert-warning">Ban sap xoa san pham <strong>@Model.TenSP</strong>. Thao tac nay khong the hoan tac.</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Nhom</dt>
+    <dd class="col-sm-9">@Model.TenNhom</dd>
+
+    <dt class="col-sm-3">Gia ban</dt>
+    <dd class="col-sm-9">@Model.GiaBan.ToString("N0")</dd>
+
+    <dt class="col-sm-3">Ton kho</dt>
+    <dd class="col-sm-9">@Model.SoLuongTon</dd>
+</dl>
+
+<form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-danger">Xoa</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Huy</a>
+</form>
