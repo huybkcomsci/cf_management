@@ -53,6 +53,7 @@ builder.Services.AddScoped<PdfTemplateService>();
 builder.Services.AddScoped<ExcelTemplateService>();
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddHostedService<PayrollBackgroundService>();
+builder.Services.AddHostedService<DatabaseSeedBackgroundService>();
 
 // Authorization policies (example)
 builder.Services.AddAuthorization(options =>
@@ -61,52 +62,6 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
-
-// Seed roles (Admin/User) at startup
-try
-{
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-    var roles = new[] { "Admin", "Kế toán", "Thu ngân" };
-    foreach (var role in roles)
-    {
-        var exists = await roleManager.RoleExistsAsync(role);
-        if (!exists)
-        {
-            await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
-        }
-    }
-
-    const string adminEmail = "admin@cafemanagement.local";
-    const string adminPassword = "Admin@123";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser is null)
-    {
-        adminUser = new ApplicationUser
-        {
-            Id = Guid.NewGuid(),
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true,
-            DisplayName = "System Admin"
-        };
-
-        var createResult = await userManager.CreateAsync(adminUser, adminPassword);
-        if (createResult.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-    }
-
-    await DbSeedData.EnsureSeedDataAsync(services);
-}
-catch (Exception ex)
-{
-    app.Logger.LogWarning(ex, "Database initialization was skipped because the database is not reachable during startup.");
-}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
