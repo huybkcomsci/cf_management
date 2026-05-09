@@ -1,7 +1,7 @@
 services:
   - type: web
     name: cafe-management
-    runtime: docker
+    env: docker
     plan: free
     dockerfilePath: ./Dockerfile
     healthCheckPath: /health
