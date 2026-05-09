@@ -34,7 +34,16 @@ builder.Services.AddAutoMapper(typeof(CafeMappingProfile));
 // Configure PostgreSQL database context using ApplicationDbContext (Identity + domain)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+{
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null);
+        npgsqlOptions.CommandTimeout(30);
+    });
+});
 
 // Configure Identity with Guid keys and role support
 builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>

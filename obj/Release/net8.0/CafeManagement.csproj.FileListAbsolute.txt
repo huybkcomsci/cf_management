@@ -144,3 +144,4 @@
 /Users/hus/CODING/DNHAN/CafeManagement/obj/Release/net8.0/CafeManagement.pdb
 /Users/hus/CODING/DNHAN/CafeManagement/obj/Release/net8.0/CafeManagement.genruntimeconfig.cache
 /Users/hus/CODING/DNHAN/CafeManagement/obj/Release/net8.0/ref/CafeManagement.dll
+/Users/hus/CODING/DNHAN/CafeManagement/obj/Release/net8.0/CafeManagement.sourcelink.json
