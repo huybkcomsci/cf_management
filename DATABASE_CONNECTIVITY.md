@@ -20,28 +20,28 @@ This typically occurs when:
 
 #### 1. Verify Connection String
 
-
 Check that `appsettings.json` has correct Supabase pooler credentials (IPv4 compatible):
 
 ```json
 {
-   "ConnectionStrings": {
-      "DefaultConnection": "Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Min Pool Size=1;Max Pool Size=20;Default Command Timeout=30;"
-   }
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Min Pool Size=1;Max Pool Size=20;Default Command Timeout=30;"
+  }
 }
 ```
 
 **Find your credentials at:** https://supabase.com/dashboard → Select Project → Settings → Database → Connection Pooler (IPv4) → Copy connection string
 
 **Key details:**
+
 - **Host**: Use Transaction Pooler endpoint (aws-1-ap-northeast-1.pooler.supabase.com)
 - **Port**: 6543 (pooler port, NOT 5432)
 - **Username**: Include project ref prefix (postgres.ovlnwuvvegmcrrhwolgu, NOT just "postgres")
 - **IPv4 Compatible**: Avoid IPv6 connectivity issues
+
 #### 2. Set Environment Variable
 
 For Render deployment, ensure CONNECTION_STRING is set:
-
 
 ```bash
 # On Render:
@@ -49,6 +49,7 @@ Settings → Environment Variables → Add
 Key: CONNECTION_STRING
 Value: Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Min Pool Size=1;Max Pool Size=20;Default Command Timeout=30;
 ```
+
 #### 3. Test Connectivity Locally
 
 Test with `psql` (PostgreSQL client):
