@@ -11,6 +11,22 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (args.Length > 0 && args[0] == "--generate-admin-hash")
+{
+    var password = args.Length > 1 ? args[1] : "Admin@123";
+    var hasher = new PasswordHasher<ApplicationUser>();
+    var user = new ApplicationUser
+    {
+        Id = Guid.NewGuid(),
+        UserName = "admin@cafemanagement.local",
+        Email = "admin@cafemanagement.local"
+    };
+
+    var hash = hasher.HashPassword(user, password);
+    Console.WriteLine(hash);
+    return;
+}
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddAutoMapper(typeof(CafeMappingProfile));
