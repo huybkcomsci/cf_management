@@ -53,7 +53,6 @@ builder.Services.AddScoped<PdfTemplateService>();
 builder.Services.AddScoped<ExcelTemplateService>();
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddHostedService<PayrollBackgroundService>();
-builder.Services.AddHostedService<DatabaseSeedBackgroundService>();
 
 // Authorization policies (example)
 builder.Services.AddAuthorization(options =>
@@ -62,6 +61,56 @@ builder.Services.AddAuthorization(options =>
 });
 
 var app = builder.Build();
+
+// Apply migrations and seed immediately at startup.
+try
+{
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    var db = services.GetRequiredService<ApplicationDbContext>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+    await db.Database.MigrateAsync();
+
+    var roles = new[] { "Admin", "Kế toán", "Thu ngân" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
+        }
+    }
+
+    const string adminEmail = "admin@cafemanagement.local";
+    const string adminPassword = "Admin@123";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser is null)
+    {
+        adminUser = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
+            DisplayName = "System Admin"
+        };
+
+        var createResult = await userManager.CreateAsync(adminUser, adminPassword);
+        if (createResult.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
+    }
+
+    await DbSeedData.EnsureSeedDataAsync(services);
+    app.Logger.LogInformation("Database migrations and seed completed successfully at startup.");
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "Database initialization failed during startup.");
+    throw;
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
