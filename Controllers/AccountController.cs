@@ -1,7 +1,9 @@
+using CafeManagement.Data;
 using CafeManagement.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace CafeManagement.Controllers;
@@ -15,6 +17,13 @@ public class AccountController : Controller
         ["thunga@cafemanagement.local"] = ("Admin@123", "Thu ngân")
     };
 
+    private readonly ApplicationDbContext _db;
+
+    public AccountController(ApplicationDbContext db)
+    {
+        _db = db;
+    }
+
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
@@ -23,14 +32,38 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginViewModel model, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        if (!DemoUsers.TryGetValue(model.Email.Trim(), out var demoUser) || demoUser.Password != model.Password)
+        var email = model.Email.Trim();
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email && x.IsActive, cancellationToken);
+
+        string role;
+        if (user is not null)
+        {
+            if (!string.Equals(user.Password, model.Password, StringComparison.Ordinal))
+            {
+                ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng");
+                return View(model);
+            }
+
+            role = user.Role;
+        }
+        else if (DemoUsers.TryGetValue(email, out var demoUser))
+        {
+            if (!string.Equals(demoUser.Password, model.Password, StringComparison.Ordinal))
+            {
+                ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng");
+                return View(model);
+            }
+
+            role = demoUser.Role;
+        }
+        else
         {
             ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng");
             return View(model);
@@ -38,9 +71,9 @@ public class AccountController : Controller
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, model.Email.Trim()),
-            new(ClaimTypes.Email, model.Email.Trim()),
-            new(ClaimTypes.Role, demoUser.Role)
+            new(ClaimTypes.Name, email),
+            new(ClaimTypes.Email, email),
+            new(ClaimTypes.Role, role)
         };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
