@@ -1,21 +1,21 @@
 using CafeManagement.Models;
 using CafeManagement.Models.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CafeManagement.Data;
 
 /// <summary>
-/// ApplicationDbContext integrates ASP.NET Core Identity and application entities.
-/// Uses Guid for all primary keys (ApplicationUser, IdentityRole).
-/// Configured for PostgreSQL/Supabase with proper relationships and constraints.
+/// ApplicationDbContext - Simple database context with basic User authentication
+/// and application domain entities. No Identity framework complexity.
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
+
+    // Authentication
+    public DbSet<User> Users { get; set; } = null!;
 
     // Domain entities
     public DbSet<Product> Products { get; set; } = null!;
@@ -36,7 +36,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
+        // ============= User (Simple Authentication) =============
+        builder.Entity<User>(entity =>
+        {
+            entity.ToTable("Users");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Password).IsRequired();
+            entity.Property(e => e.Role).HasMaxLength(50).IsRequired();
+            entity.HasIndex(e => e.Email).IsUnique();
+        });
 
         // ============= Product (legacy) =============
         builder.Entity<Product>(entity =>

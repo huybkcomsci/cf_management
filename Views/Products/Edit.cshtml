@@ -1,0 +1,42 @@
+@model CafeManagement.Models.Entities.Sanpham
+@{
+    ViewData["Title"] = "Sửa sản phẩm";
+}
+<h3>Sửa sản phẩm</h3>
+<form method="post" asp-action="Edit">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label class="form-label">Tên</label>
+        <input asp-for="TenSP" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Nhóm</label>
+        <select asp-for="IdNhom" class="form-select">
+            @{
+                var cats = ViewBag.Categories as List<CafeManagement.Models.Entities.NhomSP>;
+                if (cats != null) {
+                    foreach (var c in cats) {
+                        if (c.Id == Model.IdNhom) {
+                            <option value="@c.Id" selected="selected">@c.TenNhom</option>
+                        } else {
+                            <option value="@c.Id">@c.TenNhom</option>
+                        }
+                    }
+                }
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Giá bán</label>
+        <input asp-for="GiaBan" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Số lượng tồn</label>
+        <input asp-for="SoLuongTon" class="form-control" />
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsActive" class="form-check-input" /> <label class="form-check-label">Kích hoạt</label>
+    </div>
+    <button class="btn btn-primary">Lưu</button>
+    <a class="btn btn-secondary" asp-action="Index">Hủy</a>
+</form>

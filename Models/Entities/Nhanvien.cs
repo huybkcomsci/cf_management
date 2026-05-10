@@ -54,5 +54,4 @@ public class Nhanvien
     public ICollection<Chamcong> Chamcongs { get; set; } = new List<Chamcong>();
     public ICollection<Bangluong> Bangluongs { get; set; } = new List<Bangluong>();
     public ICollection<Phieunhap> Phieunhaps { get; set; } = new List<Phieunhap>();
-    public ICollection<Dinhluong> Dinhluongs { get; set; } = new List<Dinhluong>();
 }

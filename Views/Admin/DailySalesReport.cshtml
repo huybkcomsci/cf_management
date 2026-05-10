@@ -1,0 +1,114 @@
+@model List<CafeManagement.Models.ViewModels.DailySalesReportViewModel>
+@{
+    ViewData["Title"] = "Báo cáo doanh số hàng ngày";
+    var fromDate = ViewBag.FromDate as DateTime?;
+    var toDate = ViewBag.ToDate as DateTime?;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-1">Báo cáo doanh số hàng ngày</h3>
+        <div class="text-muted">Tổng cộng @Model.Count ngày</div>
+    </div>
+    <a asp-action="Dashboard" class="btn btn-outline-secondary">Quay lại</a>
+</div>
+
+<!-- Date Filter Form -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="DailySalesReport" class="row g-3">
+            <div class="col-md-4">
+                <label for="fromDate" class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" id="fromDate" name="fromDate" value="@fromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <label for="toDate" class="form-label">Đến ngày</label>
+                <input type="date" class="form-control" id="toDate" name="toDate" value="@toDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <label>&nbsp;</label>
+                <div>
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                    <a asp-action="DailySalesReport" class="btn btn-outline-secondary">Xóa lọc</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Không có dữ liệu để hiển thị</div>
+}
+else
+{
+    @foreach (var day in Model)
+    {
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0">@day.Ngay.ToString("dddd, dd/MM/yyyy")</h5>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <span class="badge bg-primary">@day.TongSoHD hóa đơn</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Daily Summary -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Thành tiền:</span>
+                            <strong>@day.TongThanhTien.ToString("N0") đ</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Giảm giá:</span>
+                            <strong>@day.TongGiamGia.ToString("N0") đ</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Tổng cộng:</span>
+                            <strong class="text-success">@day.TongCong.ToString("N0") đ</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Tổng món:</span>
+                            <strong>@day.Products.Sum(x => x.SoLuong) cái</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tên sản phẩm</th>
+                                <th class="text-end">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in day.Products.OrderByDescending(x => x.ThanhTien))
+                            {
+                                <tr>
+                                    <td>@product.TenSP</td>
+                                    <td class="text-end">@product.SoLuong</td>
+                                    <td class="text-end">@product.DonGia.ToString("N0") đ</td>
+                                    <td class="text-end fw-semibold">@product.ThanhTien.ToString("N0") đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}

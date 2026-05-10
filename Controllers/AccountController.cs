@@ -1,28 +1,26 @@
-using CafeManagement.Models;
 using CafeManagement.Models.ViewModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CafeManagement.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly SignInManager<ApplicationUser> _signInManager;
-
-    public AccountController(SignInManager<ApplicationUser> signInManager)
+    private static readonly Dictionary<string, (string Password, string Role)> DemoUsers = new(StringComparer.OrdinalIgnoreCase)
     {
-        _signInManager = signInManager;
-    }
+        ["admin@cafemanagement.local"] = ("Admin@123", "Admin"),
+        ["keytoan@cafemanagement.local"] = ("Admin@123", "Kế toán"),
+        ["thunga@cafemanagement.local"] = ("Admin@123", "Thu ngân")
+    };
 
-    [AllowAnonymous]
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
         return View(new LoginViewModel { ReturnUrl = returnUrl });
     }
 
-    [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
@@ -32,35 +30,44 @@ public class AccountController : Controller
             return View(model);
         }
 
-        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
-        if (result.Succeeded)
+        if (!DemoUsers.TryGetValue(model.Email.Trim(), out var demoUser) || demoUser.Password != model.Password)
         {
-            TempData["ToastType"] = "success";
-            TempData["ToastMessage"] = "Dang nhap thanh cong";
-            if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-            {
-                return Redirect(model.ReturnUrl);
-            }
-
-            return RedirectToAction("Index", "Home");
+            ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không đúng");
+            return View(model);
         }
 
-        ModelState.AddModelError(string.Empty, "Email hoac mat khau khong dung");
-        return View(model);
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.Name, model.Email.Trim()),
+            new(ClaimTypes.Email, model.Email.Trim()),
+            new(ClaimTypes.Role, demoUser.Role)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        TempData["ToastType"] = "success";
+        TempData["ToastMessage"] = "Đăng nhập thành công";
+
+        if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+        {
+            return Redirect(model.ReturnUrl);
+        }
+
+        return RedirectToAction("Index", "Home");
     }
 
-    [Authorize]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         TempData["ToastType"] = "info";
-        TempData["ToastMessage"] = "Da dang xuat";
+        TempData["ToastMessage"] = "Đã đăng xuất";
         return RedirectToAction(nameof(Login));
     }
 
-    [AllowAnonymous]
     [HttpGet]
     public IActionResult AccessDenied()
     {

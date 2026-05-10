@@ -1,0 +1,78 @@
+@model List<CafeManagement.Models.ViewModels.SalesInvoiceHistoryItemViewModel>
+@{
+    ViewData["Title"] = "Lich su hoa don";
+    var take = ViewBag.Take ?? 50;
+    var fromDate = ViewBag.FromDate as DateTime?;
+    var toDate = ViewBag.ToDate as DateTime?;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-1">Lich su hoa don</h3>
+        <div class="text-muted">Hien thi @Model.Count / @take hoa don gan nhat</div>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">Quay lai ban hang</a>
+</div>
+
+<!-- Date Filter Form -->
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="History" class="row g-3">
+            <div class="col-md-4">
+                <label for="fromDate" class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" id="fromDate" name="fromDate" value="@fromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <label for="toDate" class="form-label">Đến ngày</label>
+                <input type="date" class="form-control" id="toDate" name="toDate" value="@toDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-4">
+                <label for="take" class="form-label">Số lượng</label>
+                <input type="number" class="form-control" id="take" name="take" value="@take" min="1" max="200" />
+            </div>
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Lọc</button>
+                <a asp-action="History" class="btn btn-outline-secondary">Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>So HD</th>
+                    <th>Ngay lap</th>
+                    <th>Khach</th>
+                    <th>Thu ngan</th>
+                    <th class="text-end">So mon</th>
+                    <th class="text-end">Tam tinh</th>
+                    <th class="text-end">Giam gia</th>
+                    <th class="text-end">Tong cong</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@item.MaHD</td>
+                        <td>@item.NgayLap.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.TenKhach</td>
+                        <td>@item.ThuNgan</td>
+                        <td class="text-end">@item.SoMon</td>
+                        <td class="text-end">@item.ThanhTien.ToString("N0")</td>
+                        <td class="text-end">@item.GiamGia.ToString("N0")</td>
+                        <td class="text-end fw-semibold">@item.TongCong.ToString("N0")</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-success" asp-action="Details" asp-route-id="@item.Id">Chi tiết</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Print" asp-route-id="@item.Id" target="_blank">In</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

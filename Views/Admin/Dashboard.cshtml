@@ -12,25 +12,28 @@
 <div class="row g-3 mb-3">
     <div class="col-6 col-xl-2"><div class="card kpi-card shadow-sm"><div class="card-body"><small>Doanh thu hom nay</small><h6>@Model.RevenueToday.ToString("N0")</h6></div></div></div>
     <div class="col-6 col-xl-2"><div class="card kpi-card shadow-sm"><div class="card-body"><small>So hoa don</small><h6>@Model.InvoiceToday</h6></div></div></div>
-    <div class="col-6 col-xl-3"><div class="card kpi-card shadow-sm"><div class="card-body"><small>Mon ban chay</small><h6>@(Model.TopProductToday ?? "N/A")</h6></div></div></div>
-    <div class="col-6 col-xl-2"><div class="card kpi-card shadow-sm"><div class="card-body"><small>Ton kho thap</small><h6>@Model.LowStockCount</h6></div></div></div>
     <div class="col-6 col-xl-3"><div class="card kpi-card shadow-sm"><div class="card-body"><small>Nhan vien dang lam</small><h6>@Model.ActiveEmployees</h6></div></div></div>
 </div>
 
 <div class="row g-3">
-    <div class="col-12 col-lg-8">
+    <div class="col-12">
         <div class="card shadow-sm">
             <div class="card-header">Doanh thu 30 ngay</div>
             <div class="card-body">
                 <canvas id="revenueChart" height="120"></canvas>
+
+            <div class="row g-3 mt-2">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header">Báo cáo</div>
+                        <div class="card-body">
+                            <a asp-action="DailySalesReport" class="btn btn-outline-primary">
+                                <i class="bi bi-bar-chart"></i> Doanh số hàng ngày
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="col-12 col-lg-4">
-        <div class="card shadow-sm">
-            <div class="card-header">Top mon ban chay</div>
-            <div class="card-body">
-                <canvas id="topProductChart" height="180"></canvas>
             </div>
         </div>
     </div>
@@ -41,19 +44,10 @@
 <script>
 const revenueLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueSummary.DailySeries.Select(x => x.Label)));
 const revenueValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueSummary.DailySeries.Select(x => x.Value)));
-const topLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueSummary.TopProducts.Select(x => x.ProductName)));
-const topValues = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RevenueSummary.TopProducts.Select(x => x.Quantity)));
-
 new Chart(document.getElementById('revenueChart'), {
     type: 'line',
     data: { labels: revenueLabels, datasets: [{ label: 'Doanh thu', data: revenueValues, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,.2)', tension: .35, fill: true }] },
     options: { responsive: true, maintainAspectRatio: false }
-});
-
-new Chart(document.getElementById('topProductChart'), {
-    type: 'bar',
-    data: { labels: topLabels, datasets: [{ label: 'So luong', data: topValues, backgroundColor: '#0ea5e9' }] },
-    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
 });
 </script>
 }

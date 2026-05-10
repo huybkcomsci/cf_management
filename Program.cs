@@ -1,37 +1,39 @@
 using CafeManagement.Data;
-using CafeManagement.Models;
 using CafeManagement.Repositories;
 using CafeManagement.Repositories.Implementations;
 using CafeManagement.Services;
 using CafeManagement.Services.Interfaces;
 using CafeManagement.Services.Exports;
 using CafeManagement.Mappings;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
-
-if (args.Length > 0 && args[0] == "--generate-admin-hash")
-{
-    var password = args.Length > 1 ? args[1] : "Admin@123";
-    var hasher = new PasswordHasher<ApplicationUser>();
-    var user = new ApplicationUser
-    {
-        Id = Guid.NewGuid(),
-        UserName = "admin@cafemanagement.local",
-        Email = "admin@cafemanagement.local"
-    };
-
-    var hash = hasher.HashPassword(user, password);
-    Console.WriteLine(hash);
-    return;
-}
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddAutoMapper(typeof(CafeMappingProfile));
 
-// Configure PostgreSQL database context using ApplicationDbContext (Identity + domain)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+
+builder.Services.AddAuthorization();
+
+// Add session support for simple authentication
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Configure PostgreSQL database context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -41,27 +43,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             maxRetryCount: 3,
             maxRetryDelay: TimeSpan.FromSeconds(5),
             errorCodesToAdd: null);
-        npgsqlOptions.CommandTimeout(30);
+        npgsqlOptions.CommandTimeout(120);
     });
-});
-
-// Configure Identity with Guid keys and role support
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireLowercase = true;
-    options.User.RequireUniqueEmail = true;
-})
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
 // Register repositories and services
@@ -79,12 +62,6 @@ builder.Services.AddScoped<ExcelTemplateService>();
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddHostedService<PayrollBackgroundService>();
 
-// Authorization policies (example)
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Admin"));
-});
-
 var app = builder.Build();
 
 if (args.Contains("--seed-data"))
@@ -94,39 +71,37 @@ if (args.Contains("--seed-data"))
         using var scope = app.Services.CreateScope();
         var services = scope.ServiceProvider;
         var db = services.GetRequiredService<ApplicationDbContext>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
         await db.Database.MigrateAsync();
 
-        var roles = new[] { "Admin", "Kế toán", "Thu ngân" };
-        foreach (var role in roles)
+        // Seed default users (plain text passwords for simplicity)
+        if (!await db.Users.AnyAsync())
         {
-            if (!await roleManager.RoleExistsAsync(role))
+            db.Users.AddRange(new[]
             {
-                await roleManager.CreateAsync(new IdentityRole<Guid> { Name = role });
-            }
-        }
-
-        const string adminEmail = "admin@cafemanagement.local";
-        const string adminPassword = "Admin@123";
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser is null)
-        {
-            adminUser = new ApplicationUser
-            {
-                Id = Guid.NewGuid(),
-                UserName = adminEmail,
-                Email = adminEmail,
-                EmailConfirmed = true,
-                DisplayName = "System Admin"
-            };
-
-            var createResult = await userManager.CreateAsync(adminUser, adminPassword);
-            if (createResult.Succeeded)
-            {
-                await userManager.AddToRoleAsync(adminUser, "Admin");
-            }
+                new CafeManagement.Models.User 
+                { 
+                    Email = "admin@cafemanagement.local", 
+                    Password = "Admin@123", 
+                    Role = "Admin",
+                    IsActive = true
+                },
+                new CafeManagement.Models.User 
+                { 
+                    Email = "keytoan@cafemanagement.local", 
+                    Password = "Admin@123", 
+                    Role = "Kế toán",
+                    IsActive = true
+                },
+                new CafeManagement.Models.User 
+                { 
+                    Email = "thunga@cafemanagement.local", 
+                    Password = "Admin@123", 
+                    Role = "Thu ngân",
+                    IsActive = true
+                }
+            });
+            await db.SaveChangesAsync();
         }
 
         await DbSeedData.EnsureSeedDataAsync(services);
@@ -152,9 +127,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapGet("/health", () => Results.Ok(new
 {

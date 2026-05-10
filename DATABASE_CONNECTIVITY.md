@@ -25,7 +25,7 @@ Check that `appsettings.json` has correct Supabase pooler credentials (IPv4 comp
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Min Pool Size=1;Max Pool Size=20;Default Command Timeout=30;"
+    "DefaultConnection": "Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Timeout=5;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Minimum Pool Size=1;Maximum Pool Size=20;Command Timeout=30;"
   }
 }
 ```
@@ -47,7 +47,7 @@ For Render deployment, ensure CONNECTION_STRING is set:
 # On Render:
 Settings → Environment Variables → Add
 Key: CONNECTION_STRING
-Value: Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Min Pool Size=1;Max Pool Size=20;Default Command Timeout=30;
+Value: Host=aws-1-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ovlnwuvvegmcrrhwolgu;Password=YOUR-PASSWORD;SSL Mode=Require;Timeout=5;Trust Server Certificate=true;Connection Idle Lifetime=300;Pooling=true;Minimum Pool Size=1;Maximum Pool Size=20;Command Timeout=30;
 ```
 
 #### 3. Test Connectivity Locally

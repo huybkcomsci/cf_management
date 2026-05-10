@@ -1,0 +1,13 @@
+@model CafeManagement.Models.ViewModels.ProductListItemViewModel
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+}
+<h3>@Model.TenSP</h3>
+<dl class="row">
+    <dt class="col-3">Nhóm</dt><dd class="col-9">@Model.TenNhom</dd>
+    <dt class="col-3">Giá bán</dt><dd class="col-9">@Model.GiaBan.ToString("N0")</dd>
+    <dt class="col-3">SL tồn</dt><dd class="col-9">@Model.SoLuongTon</dd>
+</dl>
+<p>
+    <a class="btn btn-secondary" asp-action="Index">Quay lại</a>
+</p>

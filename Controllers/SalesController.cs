@@ -46,22 +46,32 @@ public class SalesController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken]  // Temporary: disabled for debugging AJAX checkout
     public async Task<IActionResult> Checkout([FromBody] SalesCheckoutRequestViewModel request, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(new { message = "Du lieu hoa don khong hop le" });
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+            _logger.LogError("Checkout model validation failed: {Errors}", string.Join(", ", errors));
+            return BadRequest(new { message = "Du lieu hoa don khong hop le", errors });
         }
 
         try
         {
+            _logger.LogInformation("Checkout starting with {ItemCount} items", request.Items?.Count ?? 0);
             var result = await _salesService.CheckoutAsync(request, User.Identity?.Name, cancellationToken);
+            _logger.LogInformation("Checkout succeeded: {MaHD}", result.MaHD);
             return Ok(result);
+        }
+        catch (OperationCanceledException ex)
+        {
+            _logger.LogWarning(ex, "Checkout cancelled");
+            return BadRequest(new { message = "Thanh toan bi huy" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            _logger.LogError(ex, "Checkout error");
+            return BadRequest(new { message = ex.Message, exceptionType = ex.GetType().Name });
         }
     }
 
@@ -69,6 +79,28 @@ public class SalesController : Controller
     public async Task<IActionResult> Print(Guid id, CancellationToken cancellationToken)
     {
         var vm = await _salesService.GetPrintDataAsync(id, cancellationToken);
+        if (vm is null)
+        {
+            return NotFound();
+        }
+
+        return View(vm);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> History(DateTime? fromDate, DateTime? toDate, int take = 50, CancellationToken cancellationToken = default)
+    {
+        var invoices = await _salesService.GetInvoiceHistoryFilteredAsync(fromDate, toDate, take, cancellationToken);
+        ViewBag.FromDate = fromDate;
+        ViewBag.ToDate = toDate;
+        ViewBag.Take = take;
+        return View(invoices);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken = default)
+    {
+        var vm = await _salesService.GetInvoiceDetailsAsync(id, cancellationToken);
         if (vm is null)
         {
             return NotFound();

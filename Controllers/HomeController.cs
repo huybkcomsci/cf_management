@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using CafeManagement.Models;
 using CafeManagement.Data;
+using Npgsql;
 
 namespace CafeManagement.Controllers;
 
@@ -9,11 +10,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly ApplicationDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context)
+    public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, IConfiguration configuration)
     {
         _logger = logger;
         _context = context;
+        _configuration = configuration;
     }
 
     public IActionResult Index()
@@ -31,40 +34,40 @@ public class HomeController : Controller
     {
         try
         {
-            // Try to connect to database
-            var canConnect = await _context.Database.CanConnectAsync();
-            
-            if (canConnect)
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                // Get current database time
-                var currentTime = DateTime.Now;
-                
-                return Json(new 
-                { 
-                    success = true, 
-                    message = "✓ Database connection successful",
-                    details = $"Connected at: {currentTime:yyyy-MM-dd HH:mm:ss}",
-                    databaseTime = currentTime.ToString("yyyy-MM-dd HH:mm:ss")
+                return Json(new
+                {
+                    success = false,
+                    message = "✗ Database connection failed",
+                    details = "Connection string is empty"
                 });
             }
-            else
-            {
-                return Json(new 
-                { 
-                    success = false, 
-                    message = "✗ Cannot connect to database",
-                    details = "CanConnectAsync returned false"
-                });
-            }
+
+            await using var dbConnection = new NpgsqlConnection(connectionString);
+            await dbConnection.OpenAsync(timeoutCts.Token);
+            await dbConnection.CloseAsync();
+
+            var currentTime = DateTime.Now;
+
+            return Json(new 
+            { 
+                success = true, 
+                message = "✓ Database connection successful",
+                details = $"Connected at: {currentTime:yyyy-MM-dd HH:mm:ss}",
+                databaseTime = currentTime.ToString("yyyy-MM-dd HH:mm:ss")
+            });
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Database connection check failed: {ex.Message}");
+            _logger.LogError(ex, "Database connection check failed");
             return Json(new 
             { 
                 success = false, 
                 message = "✗ Database connection failed",
-                details = ex.Message,
+                details = ex.ToString(),
                 type = ex.GetType().Name
             });
         }

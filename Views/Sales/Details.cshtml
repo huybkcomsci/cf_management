@@ -1,0 +1,86 @@
+@model CafeManagement.Models.ViewModels.SalesInvoiceDetailViewModel
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h3 class="mb-1">Chi tiết hóa đơn</h3>
+        <div class="text-muted">@Model.MaHD</div>
+    </div>
+    <div>
+        <a asp-action="Print" asp-route-id="@Model.HoadonId" class="btn btn-outline-primary" target="_blank">In hóa đơn</a>
+        <a asp-action="History" class="btn btn-outline-secondary">Quay lại</a>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Thông tin chung</h5>
+                <dl class="row">
+                    <dt class="col-4">Mã hóa đơn:</dt>
+                    <dd class="col-8 fw-semibold">@Model.MaHD</dd>
+                    <dt class="col-4">Ngày lập:</dt>
+                    <dd class="col-8">@Model.NgayLap.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</dd>
+                    <dt class="col-4">Khách hàng:</dt>
+                    <dd class="col-8">@Model.TenKhach</dd>
+                    <dt class="col-4">Thu ngân:</dt>
+                    <dd class="col-8">@Model.ThuNgan</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Tóm tắt giá trị</h5>
+                <dl class="row">
+                    <dt class="col-6">Thành tiền:</dt>
+                    <dd class="col-6 text-end">@Model.ThanhTien.ToString("N0") đ</dd>
+                    <dt class="col-6">Giảm giá:</dt>
+                    <dd class="col-6 text-end">-@Model.GiamGia.ToString("N0") đ</dd>
+                    <dt class="col-6 fw-semibold fs-5">Tổng cộng:</dt>
+                    <dd class="col-6 text-end fw-semibold fs-5">@Model.TongCong.ToString("N0") đ</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Chi tiết các mặt hàng (@Model.Lines.Count item)</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Tên sản phẩm</th>
+                    <th class="text-end">Số lượng</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var line in Model.Lines)
+                {
+                    <tr>
+                        <td>@line.TenSP</td>
+                        <td class="text-end">@line.SoLuong</td>
+                        <td class="text-end">@line.DonGia.ToString("N0") đ</td>
+                        <td class="text-end fw-semibold">@line.ThanhTien.ToString("N0") đ</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <td colspan="2" class="text-end fw-semibold">Tổng:</td>
+                    <td class="text-end fw-semibold">@Model.Lines.Sum(x => x.ThanhTien).ToString("N0") đ</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
